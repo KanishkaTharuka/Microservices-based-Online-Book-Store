@@ -1,24 +1,29 @@
 import { useEffect,useState } from "react";
 
-export default function AddBooks() {
+export default function AddBooks({ onNewBook }) {
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
 
     const [authors, setAuthors] = useState([]);
+    const [books, setBooks] = useState([]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try{
-        const res = await fetch ("http://localhost:4000/api/books", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({ title, author })
-        });
-        const data = await res.json();
-        console.log("Book added:", data);
-    } catch (error) {
-        console.error("Error adding book:", error);
-    }
+            const res = await fetch ("http://localhost:4000/api/books", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ title, author })
+            });
+            const newBook = await res.json();
+            setBooks((prev) => [...prev, newBook]);
+            setTitle("");
+            setAuthor("");
+            if (onNewBook) onNewBook(newBook);
+        } catch (error) {
+            console.error("Error adding book:", error);
+            alert("Failed to add book.");
+        }
 }
 
 
@@ -32,7 +37,14 @@ export default function AddBooks() {
         fetchAuthors();
     }, []);
 
-
+    useEffect(() => {
+        const fetchBooks = async () => {
+            const res = await fetch("http://localhost:4000/api/books"); 
+            const data = await res.json();
+            setBooks(data);
+        };
+        fetchBooks();
+    }, []);
 
     return(
         <div>
@@ -65,6 +77,13 @@ export default function AddBooks() {
 
                 <button type="submit" onClick={handleSubmit}>Add Book</button>
             </form>
+
+            <div>
+                <h2>Available books</h2>
+                {books.map((b) => (
+                    <li key={b._id}>{b.title} by {b.author}</li>
+                ))}
+            </div>
         </div>
     );
 }
