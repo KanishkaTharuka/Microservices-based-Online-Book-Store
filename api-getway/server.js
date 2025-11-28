@@ -3,7 +3,7 @@ import { createProxyMiddleware} from 'http-proxy-middleware';
 
 const app = express();
 
-app.use('/api/users', createProxyMiddleware({
+app.use('/api/authors', createProxyMiddleware({
     target: 'http://localhost:4003',
     changeOrigin: true
 }));
@@ -13,7 +13,7 @@ app.use('/api/books', createProxyMiddleware({
     changeOrigin: true
 }));
 
-app.use('/api/reviews', createProxyMiddleware({
+app.use('/api/orders', createProxyMiddleware({
     target: 'http://localhost:4002',
     changeOrigin: true
 }));

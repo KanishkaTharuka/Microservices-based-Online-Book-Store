@@ -1,10 +1,12 @@
 import mongoose from "mongoose";
 import express from "express";
-import userRoutes from "./routes/user.js";
+import cors from "cors";
+import userRoutes from "./routes/author.js";
 
 const app = express();
+app.use(cors());
 
-mongoose.connect('mongodb+srv://kanishkatharuka500_db_user:L1tU2O9u5Atv2xVw@cluster0.d21dir0.mongodb.net/user_service')
+mongoose.connect('mongodb+srv://kanishkatharuka500_db_user:L1tU2O9u5Atv2xVw@cluster0.d21dir0.mongodb.net/author_service')
 .then(() => {console.log('Connected to MongoDB');})
 .catch(err => {console.error('Failed to connect to MongoDB', err);});
 
