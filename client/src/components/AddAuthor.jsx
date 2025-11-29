@@ -1,62 +1,54 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 
-export default function AddAuthor({onNewAuthor }) {
-    const [name, setName] = useState('');
+export default function AddAuthor() {
+  const [name, setName] = useState("");
+  const [authors, setAuthors] = useState([]);
 
-    const [authors, setAuthors] = useState([]);
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const response = await fetch('http://localhost:4000/api/authors', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ name }),
-            });
-            const newAuthor = await response.json();
-            setAuthors((prev) => [...prev, newAuthor]);
-            setName('');
-            if (onNewAuthor) onNewAuthor(newAuthor);
-        } catch (error) {
-            console.error('Error adding author:', error);
-            alert('Failed to add author.');
-        };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:4000/api/authors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      const newAuthor = await res.json();
+      setAuthors((prev) => [...prev, newAuthor]);
+      setName("");
+    } catch (err) {
+      alert("Error adding author");
     }
+  };
 
-    useEffect(() => {
-        const fetchAuthors = async () => {
-            const res = await fetch('http://localhost:4000/api/authors');
-            const data = await res.json();
-            setAuthors(data);
-        };
-        fetchAuthors();
-    }, []);
+  useEffect(() => {
+    fetch("http://localhost:4000/api/authors")
+      .then((r) => r.json())
+      .then(setAuthors);
+  }, []);
 
-    return (
-        <div>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Author Name"
-                    required
-                />
-                <button type="submit">Add Author</button>
-            </form>
-            <div>
-                <h6>Authors Name</h6>
-                {authors.map((a) => (
-                    <li key={a._id} value={a.name}>
-                    {a.name}</li>
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-2">Add Author</h2>
 
-                ))}
-                
-            </div>
-        </div>
+      <form onSubmit={handleSubmit} className="space-y-2">
+        <input
+          className="w-full border p-2 rounded"
+          type="text"
+          value={name}
+          placeholder="Author name"
+          onChange={(e) => setName(e.target.value)}
+        />
+        <button className="bg-blue-600 text-white px-4 py-2 rounded w-full">
+          Add Author
+        </button>
+      </form>
 
-
-    );
+      <h3 className="mt-4 font-semibold">Author List:</h3>
+      <ul className="list-disc ml-6">
+        {authors.map((a) => (
+          <li key={a._id}>{a.name}</li>
+        ))}
+      </ul>
+    </div>
+  );
 }

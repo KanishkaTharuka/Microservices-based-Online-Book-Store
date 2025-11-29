@@ -1,83 +1,82 @@
-import {useState, useEffect} from 'react';
+import { useEffect, useState } from "react";
 
-export default function AddOrders({ onNewOrder }) {
-    const [book, setBook] = useState('');
-    const [quantity, setQuantity] = useState(1);
+export default function AddOrders() {
+  const [book, setBook] = useState("");
+  const [quantity, setQuantity] = useState(1);
 
-    const [books, setBooks] = useState([]);
-    const [orders, setOrders] = useState([]);
+  const [books, setBooks] = useState([]);
+  const [orders, setOrders] = useState([]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await fetch('http://localhost:4000/api/orders', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ book, quantity }),
-            });
-            const newOrder = await res.json();
-            setOrders((prev) => [...prev, newOrder]);
-            setBook('');
-            setQuantity(1);
-            if (onNewOrder) onNewOrder(newOrder);
-        } catch (error) {
-            console.error('Error adding order:', error);
-            alert('Failed to add order.');
-        }
-    };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await fetch("http://localhost:4000/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ book, quantity }),
+      });
+      const newOrder = await res.json();
+      setOrders((prev) => [...prev, newOrder]);
+      setBook("");
+      setQuantity(1);
+    } catch {
+      alert("Failed to add order");
+    }
+  };
 
-    useEffect(() => {
-        const fetchBooks = async () => {
-            const res = await fetch('http://localhost:4000/api/books');
-            const data = await res.json();
-            setBooks(data);
-        };
-        fetchBooks();
-    }, []);
+  useEffect(() => {
+    fetch("http://localhost:4000/api/books")
+      .then((r) => r.json())
+      .then(setBooks);
 
-    useEffect(() => {
-        const fetchOrders = async () => {
-            const res = await fetch('http://localhost:4000/api/orders');
-            const data = await res.json();
-            setOrders(data);
-        };
-        fetchOrders();
-    }, []); 
+    fetch("http://localhost:4000/api/orders")
+      .then((r) => r.json())
+      .then(setOrders);
+  }, []);
 
-    return(
+  return (
+    <div>
+      <h2 className="text-xl font-bold mb-4">Add Order</h2>
 
-        <div>
-            <form>
-                <div>
-                    <label>Book ID:</label>
-                    <select value={book} onChange={(e) => setBook(e.target.value)}>
-                        <option value="">Select a book</option>
-                        {books.map((b) =>(
-                            <option key={b._id} value={b.title}>
-                                {b.title}
-                            </option>))}
-                    </select>
-                </div>
-                <div>
-                    <label>Quantity:</label>
-                    <input
-                        type="number"
-                        value={quantity}
-                        onChange={(e) => setQuantity(e.target.value)}
-                    />
-                </div>
-                <button onClick={handleSubmit} type="submit">Add Order</button>
-            </form>
-            <div>
-                <h2>Available orders</h2>
-                <ul>
-                    {orders.map((o) => (
-                        <li key={o._id}>{o.book} - Quantity: {o.quantity}</li>
-                    ))}
-                </ul>
-            </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <form onSubmit={handleSubmit} className="space-y-3 bg-gray-50 p-4 rounded shadow">
+          <select
+            className="w-full border p-2 rounded"
+            value={book}
+            onChange={(e) => setBook(e.target.value)}
+          >
+            <option value="">Choose book</option>
+            {books.map((b) => (
+              <option key={b._id} value={b.title}>
+                {b.title}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="number"
+            className="w-full border p-2 rounded"
+            value={quantity}
+            onChange={(e) => setQuantity(e.target.value)}
+          />
+
+          <button className="bg-purple-600 text-white px-4 py-2 rounded w-full">
+            Add Order
+          </button>
+        </form>
+
+        <div className="bg-gray-50 p-4 rounded shadow">
+          <h3 className="text-lg font-semibold mb-2">Orders List</h3>
+          <ul className="list-disc ml-6">
+            {orders.map((o) => (
+              <li key={o._id}>{o.book} — Qty: {o.quantity}</li>
+            ))}
+          </ul>
         </div>
 
-    );
-
+      </div>
+    </div>
+  );
 }
