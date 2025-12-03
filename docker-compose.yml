@@ -1,0 +1,77 @@
+version: "3.9"
+
+services:
+  api-gateway:
+    build: ./api-gateway
+    container_name: api_gateway_container
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    depends_on:
+      - author-service
+      - book-service
+      - order-service
+
+  author-service:
+    build: ./services/author-service
+    container_name: author_service_container
+    ports:
+      - "4003:4003"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - mongodb+srv://kanishkatharuka500_db_user:L1tU2O9u5Atv2xVw@cluster0.d21dir0.mongodb.net/author_service
+    command: npm run dev
+
+  book-service:
+    build: ./services/book-service
+    container_name: book_service_container
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - mongodb+srv://kanishkatharuka500_db_user:L1tU2O9u5Atv2xVw@cluster0.d21dir0.mongodb.net/book_service
+    command: npm run dev
+
+  order-service:
+    build: ./services/order-service
+    container_name: order_service_container
+    ports:
+      - "4002:4002"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - mongodb+srv://kanishkatharuka500_db_user:L1tU2O9u5Atv2xVw@cluster0.d21dir0.mongodb.net/order_service
+    command: npm run dev
+
+  client:
+    build: ./client
+    container_name: client_container
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+
+  mongo:
+    image: mongo
+    container_name: mongo_container
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
